@@ -1,0 +1,86 @@
+ sysname rt6
+#
+ snmp-agent local-engineid 800007DB03000000000000
+ snmp-agent 
+#
+ clock timezone China-Standard-Time minus 08:00:00
+#
+portal local-server load flash:/portalpage.zip
+#
+ drop illegal-mac alarm
+#
+router id 3.1.1.6 
+#
+ wlan ac-global carrier id other ac id 0
+#
+ set cpu-usage threshold 80 restore 75
+#
+acl number 2003  
+ rule 5 permit source 141.3.112.12 0 
+ rule 6 permit source 141.3.16.0 0.0.0.255 
+ rule 10 permit source 192.168.0.0 0.0.255.255 
+ rule 15 deny 
+acl number 2004  
+ rule 5 permit source 141.4.124.24 0 
+ rule 6 permit source 172.16.1.0 0.0.0.255 
+ rule 10 permit source 192.168.0.0 0.0.0.255 
+ rule 15 deny 
+#
+firewall zone Local
+ priority 15
+#
+interface GigabitEthernet0/0/0
+ ip address 141.3.2.6 255.255.255.0 
+#
+interface GigabitEthernet0/0/1
+ ip address 141.3.3.6 255.255.255.0 
+#
+interface GigabitEthernet0/0/2
+ ip address 141.0.0.246 255.255.255.252 
+#
+interface NULL0
+#
+interface LoopBack0
+ ip address 3.1.1.6 255.255.255.255 
+#
+interface LoopBack1
+ ip address 192.168.3.6 255.255.255.255 
+#
+bgp 3
+ peer 141.0.0.245 as-number 1 
+ group as3-peer-group internal
+ peer as3-peer-group connect-interface LoopBack0
+ peer 3.1.1.7 as-number 3 
+ peer 3.1.1.7 group as3-peer-group 
+ peer 3.1.1.8 as-number 3 
+ peer 3.1.1.8 group as3-peer-group 
+ #
+ ipv4-family unicast
+  undo synchronization
+  default med 200 
+  default local-preference 100
+  import-route ospf 1 route-policy import_ospf_to_bgp
+  peer 141.0.0.245 enable
+  peer as3-peer-group enable
+  peer as3-peer-group next-hop-local 
+  peer 3.1.1.7 enable
+  peer 3.1.1.7 group as3-peer-group 
+  peer 3.1.1.8 enable
+  peer 3.1.1.8 group as3-peer-group 
+#
+ospf 1 
+ import-route bgp route-policy import_bgp_to_ospf
+ area 0.0.0.0 
+  network 3.1.1.6 0.0.0.0 
+  network 141.3.0.0 0.0.255.255 
+  network 192.168.3.6 0.0.0.0 
+#
+route-policy import_ospf_to_bgp permit node 12 
+ if-match acl 2003 
+ apply cost 150 
+#
+route-policy import_bgp_to_ospf permit node 13 
+ if-match acl 2004 
+ apply cost 200 
+#
+return

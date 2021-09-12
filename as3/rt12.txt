@@ -1,0 +1,57 @@
+ sysname rt12
+#
+ board add 0/4 2E1-F 
+#
+ snmp-agent local-engineid 800007DB03000000000000
+ snmp-agent 
+#
+ clock timezone China-Standard-Time minus 08:00:00
+#
+portal local-server load flash:/portalpage.zip
+#
+ drop illegal-mac alarm
+#
+router id 3.1.1.12 
+#
+ wlan ac-global carrier id other ac id 0
+#
+ set cpu-usage threshold 80 restore 75
+#
+firewall zone Local
+ priority 15
+#
+interface Serial4/0/0
+ link-protocol ppp
+ ip address 141.3.14.246 255.255.255.0 
+ ospf cost 10
+#
+interface Serial4/0/1
+ link-protocol ppp
+#
+interface GigabitEthernet0/0/0
+ ip address 141.3.16.12 255.255.255.0 
+ vrrp vrid 10 virtual-ip 141.3.10.1
+ ospf cost 10000
+#
+interface GigabitEthernet0/0/1
+ ip address 141.3.17.12 255.255.255.0 
+ vrrp vrid 11 virtual-ip 141.3.11.2
+ vrrp vrid 11 priority 120
+ ospf cost 10000
+#
+interface GigabitEthernet0/0/2
+#
+interface NULL0
+#
+interface LoopBack0
+ ip address 141.3.112.12 255.255.255.255 
+#
+interface LoopBack1
+ ip address 192.168.3.12 255.255.255.255 
+#
+ospf 1 
+ area 0.0.0.0 
+  network 141.3.0.0 0.0.255.255 
+  network 192.168.3.12 0.0.0.0 
+#
+return

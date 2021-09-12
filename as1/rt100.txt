@@ -1,0 +1,48 @@
+[rt100]dis cu
+[V200R003C00]
+#
+ sysname rt100
+#
+ snmp-agent local-engineid 800007DB03000000000000
+ snmp-agent 
+#
+ clock timezone China-Standard-Time minus 08:00:00
+#
+portal local-server load flash:/portalpage.zip
+#
+router id 1.1.1.100 
+#
+ wlan ac-global carrier id other ac id 0
+#
+ set cpu-usage threshold 80 restore 75
+#
+acl number 2001  
+ rule 5 permit source 141.3.16.0 0.0.0.255 
+ rule 6 permit source 141.4.10.0 0.0.0.255 
+ rule 10 deny 
+#
+firewall zone Local
+ priority 15
+#
+ nat address-group 1 172.16.1.2 172.16.1.5
+ nat address-group 2 172.16.1.3 172.16.1.5
+#
+interface GigabitEthernet0/0/0
+ ip address 141.1.2.100 255.255.255.0 
+#
+interface GigabitEthernet0/0/1
+ ip address 172.16.1.2 255.255.255.0 
+ nat outbound 2001 address-group 2 
+#
+interface GigabitEthernet0/0/2
+#
+interface NULL0
+#
+ospf 1 
+ area 0.0.0.0 
+  network 141.1.0.0 0.0.255.255 
+  network 172.16.1.0 0.0.0.255 
+#
+ip route-static 172.16.0.0 255.255.0.0 172.16.1.1
+#
+return
